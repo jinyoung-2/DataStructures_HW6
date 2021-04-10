@@ -149,7 +149,7 @@ int insertFirst(headNode* h, int key) {
 	return 0;
 }
 
-
+/////여기 다시!!!
 /* 리스트를 검색하여, 입력받은 key보다 큰값이 나오는 노드 바로 앞에 삽입 */
 //중간에 삽입--> 순차적으로!(오름차순으로 입력)
 int insertNode(headNode* h, int key) 
@@ -172,13 +172,13 @@ int insertNode(headNode* h, int key)
 	//노드가 1개일 때
 	else if(h->first->link==NULL)
 	{
-		if(key>(cur->key))  //key가 노드의 데이터보다 클 때 
+		if(key>(h->first->key))  //key가 노드의 데이터보다 클 때 
 		{
-			cur->link=node;
+			h->first->link=node;
 		}
 		else   //key<=(cur->key) //key가 노드의 데이터보다 작거나 같을 때
 		{
-			node->link=cur;
+			node->link=h->first;
 			h->first=node;
 		}
 	}
@@ -186,19 +186,26 @@ int insertNode(headNode* h, int key)
 	//노드가 2개 이상일 때
 	else
 	{
-		while(1)
+		prev=cur;
+		cur=cur->link;
+		while((cur->link)!=NULL)
    		{
 			//삽입할 위치를 찾을 때 -> cur 위치에 삽입
-        	if((key>=(prev->key))&&key<=(cur->key))		//Q. 등호 맞나?
+        	if((key>=(prev->key))&&(key<=(cur->key)))		//Q. 등호 맞나?
             {
 				prev->link=node;	//node의 위치를 prev->link에 대입
 				node->link=cur;	 	//cur의 위치를 node->link에 대입
 				return 0;
 			}	
         	//삽입할 위치 찾지 못할 때 prev, cur 위치 변경
-        	prev=cur;
-			cur=cur->link;
-    	}	
+			else
+			{
+				prev=cur;
+				cur=cur->link;
+			}
+    	}
+		//cur이 마지막 노드일 때(=key값이 가장 클 때)
+		cur->link=node;
 	}
 	return 0;
 }
@@ -335,8 +342,8 @@ int deleteNode(headNode* h, int key)
 				}   
             }
         }
-		return 0;
     }
+	return 0;
 }
 
 /**
