@@ -162,25 +162,44 @@ int insertNode(headNode* h, int key)
 	listNode* prev=NULL;        
 	listNode* cur=h->first;	    
 
-    //리스트에 노드가 존재하지 않을 때
+    //노드가 존재하지 않을 때
     if(h->first==NULL)  
     {
         h->first=node;      //첫번째 노드를 node로 설정   //Q. 맞나?  
         return 0;
     }
-    //리스트에 노드가 존재할 때
-    while(1)
-    {
-        if(key<=(cur->key))		//Q. 등호 맞나?
-            break;
-        //삽입할 위치 찾지 못할 때 prev, cur 위치 변경
-        prev=cur;
-		cur=cur->link;
-    }
-    //삽입할 위치를 찾을 때 -> cur 위치에 삽입
-	node->link=cur;	    //cur의 위치를 node->link에 대입
-	prev->link=node;	//node의 위치를 prev->link에 대입
-	
+
+	//노드가 1개일 때
+	else if(h->first->link==NULL)
+	{
+		if(key>(cur->key))  //key가 노드의 데이터보다 클 때 
+		{
+			cur->link=node;
+		}
+		else   //key<=(cur->key) //key가 노드의 데이터보다 작거나 같을 때
+		{
+			node->link=cur;
+			h->first=node;
+		}
+	}
+
+	//노드가 2개 이상일 때
+	else
+	{
+		while(1)
+   		{
+			//삽입할 위치를 찾을 때 -> cur 위치에 삽입
+        	if((key>=(prev->key))&&key<=(cur->key))		//Q. 등호 맞나?
+            {
+				prev->link=node;	//node의 위치를 prev->link에 대입
+				node->link=cur;	 	//cur의 위치를 node->link에 대입
+				return 0;
+			}	
+        	//삽입할 위치 찾지 못할 때 prev, cur 위치 변경
+        	prev=cur;
+			cur=cur->link;
+    	}	
+	}
 	return 0;
 }
 
@@ -201,21 +220,29 @@ int insertLast(headNode* h, int key)
 	listNode* prev=NULL;        
 	listNode* cur=h->first;	 
 
-    //리스트에 노드가 존재하지 않을 때
+    //노드가 존재하지 않을 때
     if(h->first==NULL)
     {
-        h->first=node;  //Q.
-        return 0;
+		h->first=node;
     }
 
-    //리스트에 노드가 1개 이상 존재할 때
-    while(cur!=NULL)
-    {
-        prev=cur; //prev는 cur 노드로 변경   
-		cur=cur->link;	//cur은 cur의 link가 가리키는 노드로 변경
-    }
-    //cur=NULL일 때(마지막 노드일 때)
-	prev->link=node;  //마지막 노드의 link에 생성한 node 연결(주소 대입)
+    //노드가 1개일 때
+	else if(h->first->link==NULL)
+	{
+		cur->link=node;
+	}
+
+	//노드가 2개 이상일 때
+	else
+	{
+		while(cur->link!=NULL)
+		{
+			prev=cur;		//prev는 cur노드로 변경 
+			cur=cur->link;	//cur은 cur의 link가 가리키는 노드로 변경
+		}
+		//cur이 마지막 노드일 때
+		cur->link=node;
+	}
 	
 	return 0;
 }
@@ -225,21 +252,33 @@ int insertLast(headNode* h, int key)
  * list의 첫번째 노드 삭제
  */
 int deleteFirst(headNode* h) 
-{
-	//전처리기 함수작성하기
-	//첫번째 노드=NULL이라면, ~~한다
-	if(h->first==NULL)
+{   
+    //리스트 탐색을 위한 노드 포인터들 선언 
+	listNode* prev=NULL;         //여기선 prev 사용ㅇ안하는 듯-->사용안하면 제거하기
+	listNode* cur=h->first;	 
+
+	//노드가 없을 때
+	if((h->first)==NULL)
 	{
 		printf("제거할 노드가 없습니다.\n");
-		return -1;
 	}
-	//첫번째 노드가 NULL이 아닐 때
-	listNode* prev=NULL;  //이전 노드 
-	listNode* cur=h->first;	 //현재 노드 
-	prev=cur->link;
-	free(cur);
-	//혹시 cur도 설정해줘야 하나요? 안 해도 될거 같은데, 
-	return 0;
+
+	//노드가 1개만 있을 때 
+    else if(h->first->link==NULL)
+    {
+        free(h->first);   //동적할당 해제 //Check!!    
+        h->first=NULL;    
+    }
+
+    //노드가 2개 이상 있을 때 
+	else
+    {
+		prev=cur;
+		cur=cur->link;
+        free(prev);    //동적할당 해제   //Q. free(h->first); ?
+        h->first=cur;
+    }
+    return 0;
 }
 
 
@@ -249,19 +288,55 @@ int deleteFirst(headNode* h)
 //해당되는 key에 대한 노드 삭제 (처음에 만나는 원소만 삭제)
 int deleteNode(headNode* h, int key) 
 {
-	listNode* prev=NULL;  //이전 노드 
-	listNode* cur=h->first;	 //현재 노드 
-	if((cur->key)==key)	//해당 key를 갖고 있다면, 삭제
-	{	
-		prev=cur->link;
-		free(cur);
-	}
-	else
+	//리스트 탐색을 위한 노드 포인터들 선언 
+	listNode* prev=NULL;        
+	listNode* cur=h->first;	 
+
+	//노드가 없을 때
+	if((h->first)==NULL)
 	{
-		prev=cur;
-		cur=cur->link;
+		printf("제거할 노드가 없습니다.\n");
 	}
-	return 0;
+	//노드가 1개일 때 - 해당되는 key가 존재할 때와 존재하지 않을 때로 2가지 case 나뉨 
+	else if(h->first->link==NULL)
+	{
+		if(key==(cur->key))	//해당되는 key가 존재할 때
+		{
+			free(h->first);
+			h->first=NULL;
+		}
+		else //해당되는 key가 존재하지 않을 때
+		{
+			printf("제거할 노드가 없습니다.\n");
+		}
+	}
+	//노드가 2개 이상일 때 
+    else
+    {
+        while(1)
+        {
+            if((cur->key)==key)  //해당 key를 갖고 있다면, 삭제
+            {
+                prev->link=cur->link;
+                free(cur);    //동적할당 해제        //Check!!    
+                break;
+            }
+            else //해당 key를 갖고 있지 않을 때 - 전혀 존재하지 않을 때와 cur위치의 key값이 아닐 때로 2가지 case 나뉨.
+            {
+				if((cur->link)==NULL)	//해당 key를 갖는 노드가 전혀 존재하지 않을 때
+				{
+					printf("제거할 노드가 없습니다.\n");
+					break;
+				}
+				else	//cur노드의 데이터가 key가 아닐 때
+				{
+					prev=cur; //prev는 cur 노드로 변경   
+		        	cur=cur->link;	//cur은 cur의 link가 가리키는 노드로 변경
+				}   
+            }
+        }
+		return 0;
+    }
 }
 
 /**
@@ -269,18 +344,34 @@ int deleteNode(headNode* h, int key)
  */
 int deleteLast(headNode* h) 
 {
-	//Q. 마지막 노드는 어떻게 찾을까?
-	listNode* prev=NULL;  //이전 노드 
-	listNode* cur=h->first;	 //현재 노드 
-	if(cur->link==NULL)	//마지막 노드일 때
+    //리스트 탐색을 위한 노드 포인터들 선언 
+	listNode* prev=NULL;        
+	listNode* cur=h->first;	 
+
+	//노드가 없을 때
+	if((h->first)==NULL)
 	{
-		prev->link=NULL;
-		free(cur);   //Q. 가능?
+		printf("제거할 노드가 없습니다.\n");
 	}
-	else	//마지막 노드가 아닐 때 다음 노드로 이동
+	 
+	//노드가 1개일 때
+	else if(h->first->link==NULL)
 	{
-		prev=cur;
-		cur=cur->link;
+		free(h->first);
+		h->first=NULL;
+	}
+
+	//노드가 2개 이상일 때
+	else
+	{
+		while(cur->link!=NULL)
+		{
+			prev=cur;
+			cur=cur->link;
+		}
+		//cur이 NULL일 때
+		prev->link=NULL;
+		free(cur);
 	}
 	return 0;
 }
