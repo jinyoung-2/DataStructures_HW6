@@ -149,7 +149,7 @@ int insertFirst(headNode* h, int key) {
 	return 0;
 }
 
-/////여기 다시!!!
+///////////////////////////////////////////////////////////////////////////////////////////////여기 다시!!!
 /* 리스트를 검색하여, 입력받은 key보다 큰값이 나오는 노드 바로 앞에 삽입 */
 //중간에 삽입--> 순차적으로!(오름차순으로 입력)
 int insertNode(headNode* h, int key) 
@@ -191,10 +191,10 @@ int insertNode(headNode* h, int key)
 		while((cur->link)!=NULL)
    		{
 			//삽입할 위치를 찾을 때 -> cur 위치에 삽입
-        	if((key>=(prev->key))&&(key<=(cur->key)))		//Q. 등호 맞나?
+        	if(key<=(cur->key))		//Q. 등호 맞나?
             {
-				prev->link=node;	//node의 위치를 prev->link에 대입
 				node->link=cur;	 	//cur의 위치를 node->link에 대입
+				prev->link=node;	//node의 위치를 prev->link에 대입
 				return 0;
 			}	
         	//삽입할 위치 찾지 못할 때 prev, cur 위치 변경
@@ -205,12 +205,11 @@ int insertNode(headNode* h, int key)
 			}
     	}
 		//cur이 마지막 노드일 때(=key값이 가장 클 때)
-		cur->link=node;
+		if((cur->key)<key)
+			cur->link=node;
 	}
 	return 0;
 }
-
-
 
 
 /**
@@ -267,7 +266,7 @@ int deleteFirst(headNode* h)
 	//노드가 없을 때
 	if((h->first)==NULL)
 	{
-		printf("제거할 노드가 없습니다.\n");
+		printf("ERROR: There are no nodes to remove.\n");
 	}
 
 	//노드가 1개만 있을 때 
@@ -302,7 +301,8 @@ int deleteNode(headNode* h, int key)
 	//노드가 없을 때
 	if((h->first)==NULL)
 	{
-		printf("제거할 노드가 없습니다.\n");
+		printf("ERROR: There are no nodes to remove.\n");
+		return 0;
 	}
 	//노드가 1개일 때 - 해당되는 key가 존재할 때와 존재하지 않을 때로 2가지 case 나뉨 
 	else if(h->first->link==NULL)
@@ -314,34 +314,66 @@ int deleteNode(headNode* h, int key)
 		}
 		else //해당되는 key가 존재하지 않을 때
 		{
-			printf("제거할 노드가 없습니다.\n");
+			printf("ERROR: There are no nodes to remove.\n");
 		}
+		return 0;
 	}
 	//노드가 2개 이상일 때 
-    else
+    // else
+    // {
+    //     while(1)
+    //     {
+    //         if((cur->key)==key)  //해당 key를 갖고 있다면, 삭제
+    //         {
+    //             prev->link=cur->link;
+    //             free(cur);    //동적할당 해제        //Check!!    
+    //             break;
+    //         }
+    //         else //해당 key를 갖고 있지 않을 때 - 전혀 존재하지 않을 때와 cur위치의 key값이 아닐 때로 2가지 case 나뉨.
+    //         {
+	// 			if((cur->link)==NULL)	//해당 key를 갖는 노드가 전혀 존재하지 않을 때
+	// 			{
+	// 				printf("제거할 노드가 없습니다.\n");
+	// 				break;
+	// 			}
+	// 			else	//cur노드의 데이터가 key가 아닐 때
+	// 			{
+	// 				prev=cur; //prev는 cur 노드로 변경   
+	// 	        	cur=cur->link;	//cur은 cur의 link가 가리키는 노드로 변경
+	// 			}   
+    //         }
+    //     }
+    // }
+
+	else
     {
-        while(1)
+        while(cur->link!=NULL)
         {
-            if((cur->key)==key)  //해당 key를 갖고 있다면, 삭제
+			//해당 key를 갖고 있다면, 삭제
+            if((cur->key)==key) 
             {
+				if(cur==h->first) //헤드노드의 데이터와 key와 동일할 때 
+				{
+					cur=cur->link;
+					free(h->first);
+					h->first=cur;
+					return 0;
+				}
+				//그 외의 노드의 데이터와 key와 동일할 때
                 prev->link=cur->link;
                 free(cur);    //동적할당 해제        //Check!!    
-                break;
+                return 0;
             }
-            else //해당 key를 갖고 있지 않을 때 - 전혀 존재하지 않을 때와 cur위치의 key값이 아닐 때로 2가지 case 나뉨.
+
+			//해당 key를 갖고 있지 않을 때 -> cur노드의 데이터가 key가 아닐 때
+            else 
             {
-				if((cur->link)==NULL)	//해당 key를 갖는 노드가 전혀 존재하지 않을 때
-				{
-					printf("제거할 노드가 없습니다.\n");
-					break;
-				}
-				else	//cur노드의 데이터가 key가 아닐 때
-				{
-					prev=cur; //prev는 cur 노드로 변경   
-		        	cur=cur->link;	//cur은 cur의 link가 가리키는 노드로 변경
-				}   
+				prev=cur; //prev는 cur 노드로 변경   
+		    	cur=cur->link;	//cur은 cur의 link가 가리키는 노드로 변경		   
             }
         }
+		//해당 key가 노드에 전혀 존재하지 않을 때
+		printf("ERROR: There are no nodes to remove.\n");
     }
 	return 0;
 }
@@ -358,7 +390,7 @@ int deleteLast(headNode* h)
 	//노드가 없을 때
 	if((h->first)==NULL)
 	{
-		printf("제거할 노드가 없습니다.\n");
+		printf("ERROR: There are no nodes to remove.\n");
 	}
 	 
 	//노드가 1개일 때
@@ -389,8 +421,31 @@ int deleteLast(headNode* h)
  */
 int invertList(headNode* h) 
 {
+	/* 리스트 탐색을 위한 노드 포인터 3개 선언 -> 이유: 2개만 선언시 연속적으로 역순으로 재배치가 불가능함. 
+		예를 들어 prev와 cur 노드 포인터가 있다고 하자. cur->link=prev로 하면, 기존에 cur->link가 가리키는 노드의 연결을 제거하여 연속적으로 연속으로 재배치가 불가능하다.*/
+	listNode* trail=NULL;		//NULL로 초기화
+	listNode* middle=NULL;		//NULL로 초기화
+	listNode* lead=h->first;	//헤드노드를 가리키도록 초기화
 
+	//노드가 없을 때와 노드가 1개일 때는 역순으로 재배치할 노드가 없음(기존과 동일한 순서)
+	if((h->first==NULL)||(h->first->link==NULL))
+	{
+		return 0;
+	}
 
+	//노드가 2개 이상일 때
+	else
+	{
+		while(lead)				//lead가 NULL이기 전까지 반복
+		{
+			trail=middle;		//trail위치를 middle 위치로 설정
+			middle=lead;		//middle위치를 lead 위치로 설정
+			lead=lead->link;	//lead위치를 lead의 link가 가리키는 위치로 설정 
+			middle->link=trail;	//middle의 link는 trail을 가리키도록 설정 (역순 재배치)
+		}
+		//lead가 NULL일 때
+		h->first=middle;		//헤드노드를 middle로 설정 
+	}
 	return 0;
 }
 
